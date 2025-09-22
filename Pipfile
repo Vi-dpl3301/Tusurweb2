@@ -1,2 +1,22 @@
+# Pipfile
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+pillow = "*"
+matplotlib = "*"
+numpy = "*"
+pytest = "*"
+flask-wtf = "*"
+recaptcha-python = "2.0.7"  
+
+[dev-packages]
+flake8 = "*"
+black = "*"
+pre-commit = "*"
+
 [requires]
 python_version = "3.8"
