@@ -1,0 +1,6 @@
+__pycache__
+*.pyc
+static/results/
+static/uploads/
+.env
+*.lock
