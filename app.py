@@ -91,5 +91,6 @@ def plot_color_distribution(image, save_path):
     plt.savefig(save_path)
     plt.close()
 
+	
 if __name__ == '__main__':
     app.run(debug=True)
