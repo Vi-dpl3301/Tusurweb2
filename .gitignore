@@ -1,6 +1,11 @@
-__pycache__
-*.pyc
-static/results/
-static/uploads/
-.env
-*.lock
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+ENV/
+
+# Pipenv
+.Pipfile.lock

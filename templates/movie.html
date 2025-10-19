@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ movie.title }} - Домашняя видеотека</title>
+    <style>
+        body {
+            background: url('{{ url_for('static', filename='backgrounds/movie_background.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            color: #333;
+        }
+        .movie-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .movie-poster img {
+            width: 400px;
+            height: auto;
+            max-height: 600px;
+            object-fit: contain;
+            object-position: top;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 2px solid #ddd;
+        }
+        .movie-info {
+            flex: 1;
+        }
+        .movie-title {
+            font-size: 2em;
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .movie-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .movie-description {
+            font-size: 1.1em;
+            margin-top: 20px;
+            text-align: justify;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: blue;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Вернуться к списку фильмов</a>
+
+        <div class="movie-header">
+            <div class="movie-poster">
+                <img src="{{ url_for('static', filename='Covers/' + movie.cover_filename) }}" alt="{{ movie.title }}">
+            </div>
+            <div class="movie-info">
+                <h1 class="movie-title">{{ movie.title }}</h1>
+                <div class="movie-meta">
+                    <strong>Жанр:</strong> {{ movie.genre }}<br>
+                    <strong>Год:</strong> {{ movie.year }}<br>
+                    <strong>Режиссёр:</strong> {{ movie.director }}<br>
+                    <strong>Актёры:</strong> {{ movie.actors | join(', ') }}<br>
+                    <strong>Продолжительность:</strong> {{ movie.duration }} мин.
+                </div>
+            </div>
+        </div>
+
+        <div class="movie-description">
+            {{ movie.description }}
+        </div>
+    </div>
+</body>
+</html>
