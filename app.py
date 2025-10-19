@@ -1,4 +1,5 @@
 ﻿# -*- coding: utf-8 -*-
+import os
 from flask import Flask, jsonify, request, render_template
 
 app = Flask(__name__)
@@ -177,5 +178,6 @@ def delete_movie(movie_id):
     movies = [m for m in movies if m['id'] != movie_id]
     return jsonify({"message": "Фильм удален"}), 200
 
+# Запуск приложения
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
