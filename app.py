@@ -1,9 +1,13 @@
 ﻿# -*- coding: utf-8 -*-
 import os
 from flask import Flask, jsonify, request, render_template
+from flasgger import Swagger
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
+
+# Инициализация Swagger
+Swagger(app)
 
 # Полные данные о фильмах с локальными обложками
 movies = [
@@ -26,7 +30,7 @@ movies = [
         "year": 2014,
         "director": "Кристофер Нолан",
         "actors": ["Мэттью Макконахи", "Энн Хэтэуэй", "Джессика Честейн", "Майкл Кейн"],
-        "description": "«Интерстеллар» — это эпическая научно-фантастическая драма, которая отправляет зрителя в путешествие сквозь время и пространство в поисках нового дома для человечества. Фильм начинается в ближайшем будущем, когда Земля находится на грани экологической катастрофы. Бывший пилот NASA Купер, живущий на ферме с детьми, случайно обнаруживает секретную миссию по спасению человечества. Ему предстоит возглавить экспедицию через червоточину в далекую часть галактики, чтобы найти пригодную для жизни планету. На пути он столкнется с испытаниями, которые проверят его на прочность: от гравитационных аномалий до потери времени и связи с домом. Фильм затрагивает темы любви, жертвенности и надежды, показывая, что даже в безнадежной ситуации человек способен совершать невозможное ради тех, кого любит. «Интерстеллар» — это не просто космическая одиссея, это глубокое размышление о человеческой природе, времени и месте человека во Вселенной. Визуальные эффекты, музыка Ханса Циммера и мощная актерская игра делают этот фильм одним из лучших в жанре.",
+        "description": "«Интерстеллар» — это эпическая научно-фантастическая драма, которая отправляет зрителя в путешествие сквозь время и пространство в поисках нового дома для человечества. Фильм начинается в ближайшем будущем, когда Земля находится на грани экологической катастрофы. Бывший пилот NASA Купер, живущий на ферме с детьми, случайно обнаруживает секретную миссию по спасению человечества. Ему предстоит возглавить экспедицию через червоточину в далекую часть галактики, чтобы найти пригодную для жизни планету. На пути он столкнется с испытаниями, которые проверят его на прочность: от гравитационных аномалий до потери времени и связи с домом. Фильм затрагивает темы любви, жертвенности и надежды, показывая, что даже в безнадежной ситуации человек способен совершать невозможное ради тех, кого любит. «Интерстеллар» — это не просто космическая одиссия, это глубокое размышление о человеческой природе, времени и месте человека во Вселенной. Визуальные эффекты, музыка Ханса Циммера и мощная актерская игра делают этот фильм одним из лучших в жанре.",
         "cover_filename": "Интерстеллар.png"
     },
     {
@@ -119,37 +123,343 @@ movies = [
     }
 ]
 
+
 # Эндпоинт: Главная страница (список фильмов)
 @app.route('/')
 def index():
+    """
+    Главная страница
+    ---
+    tags:
+      - UI
+    summary: Отображение списка фильмов
+    description: Возвращает HTML-страницу с карточками всех фильмов.
+    responses:
+      200:
+        description: Успешное отображение списка фильмов
+        content:
+          text/html:
+            schema:
+              type: string
+              example: "<html>...</html>"
+    """
     return render_template('index.html', movies=movies)
+
 
 # Эндпоинт: Страница фильма
 @app.route('/movies/<int:movie_id>')
 def movie_page(movie_id):
+    """
+    Страница фильма
+    ---
+    tags:
+      - UI
+    summary: Отображение информации о фильме
+    description: Возвращает HTML-страницу с подробной информацией о фильме по его ID.
+    parameters:
+      - in: path
+        name: movie_id
+        schema:
+          type: integer
+          example: 1
+        required: true
+        description: Уникальный идентификатор фильма
+    responses:
+      200:
+        description: Успешное отображение информации о фильме
+        content:
+          text/html:
+            schema:
+              type: string
+              example: "<html>...</html>"
+      404:
+        description: Фильм не найден
+        content:
+          text/html:
+            schema:
+              type: string
+              example: "<h1>Фильм не найден</h1>..."
+    """
     movie = next((m for m in movies if m['id'] == movie_id), None)
     if movie:
         return render_template('movie.html', movie=movie)
     else:
         return "<h1>Фильм не найден</h1><a href='/'>Назад к списку</a>", 404
 
+
 # Эндпоинт: Получить все фильмы (API)
 @app.route('/api/movies', methods=['GET'])
 def get_movies():
+    """
+    Получить все фильмы
+    ---
+    tags:
+      - API
+    summary: Получение списка всех фильмов
+    description: Возвращает JSON-массив со всеми фильмами.
+    responses:
+      200:
+        description: Список фильмов
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Movie'
+    definitions:
+      Movie:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          title:
+            type: string
+            example: "Начало"
+          duration:
+            type: integer
+            example: 148
+          genre:
+            type: string
+            example: "Научная фантастика, Триллер"
+          year:
+            type: integer
+            example: 2010
+          director:
+            type: string
+            example: "Кристофер Нолан"
+          actors:
+            type: array
+            items:
+              type: string
+            example: ["Леонардо ДиКаприо", "Джозеф Гордон-Левитт"]
+          description:
+            type: string
+            example: "«Начало» — это захватывающий научно-фантастический триллер..."
+          cover_filename:
+            type: string
+            example: "Начало.png"
+        required:
+          - id
+          - title
+          - duration
+          - genre
+          - year
+          - director
+          - actors
+          - description
+          - cover_filename
+    """
     return jsonify(movies)
+
 
 # Эндпоинт: Получить фильм по ID (API)
 @app.route('/api/movies/<int:movie_id>', methods=['GET'])
 def get_movie(movie_id):
+    """
+    Получить фильм по ID
+    ---
+    tags:
+      - API
+    summary: Получение информации о фильме по ID
+    description: Возвращает JSON-объект фильма с указанным ID.
+    parameters:
+      - in: path
+        name: movie_id
+        schema:
+          type: integer
+          example: 1
+        required: true
+        description: Уникальный идентификатор фильма
+    responses:
+      200:
+        description: Информация о фильме
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/Movie'
+      404:
+        description: Фильм не найден
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Фильм не найден"
+    definitions:
+      Movie:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          title:
+            type: string
+            example: "Начало"
+          duration:
+            type: integer
+            example: 148
+          genre:
+            type: string
+            example: "Научная фантастика, Триллер"
+          year:
+            type: integer
+            example: 2010
+          director:
+            type: string
+            example: "Кристофер Нолан"
+          actors:
+            type: array
+            items:
+              type: string
+            example: ["Леонардо ДиКаприо", "Джозеф Гордон-Левитт"]
+          description:
+            type: string
+            example: "«Начало» — это захватывающий научно-фантастический триллер..."
+          cover_filename:
+            type: string
+            example: "Начало.png"
+        required:
+          - id
+          - title
+          - duration
+          - genre
+          - year
+          - director
+          - actors
+          - description
+          - cover_filename
+    """
     movie = next((m for m in movies if m['id'] == movie_id), None)
     if movie:
         return jsonify(movie)
     else:
         return jsonify({"error": "Фильм не найден"}), 404
 
+
 # Эндпоинт: Добавить новый фильм (API)
 @app.route('/api/movies', methods=['POST'])
 def add_movie():
+    """
+    Добавить новый фильм
+    ---
+    tags:
+      - API
+    summary: Добавление нового фильма
+    description: Добавляет новый фильм в список. В теле запроса должен быть JSON-объект с данными фильма.
+    parameters:
+      - in: body
+        name: movie
+        required: true
+        description: Данные нового фильма
+        schema:
+          $ref: '#/definitions/MovieInput'
+    responses:
+      201:
+        description: Фильм успешно добавлен
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/Movie'
+      400:
+        description: Неверные данные
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Неверные данные"
+                required:
+                  type: array
+                  items:
+                    type: string
+                  example: ["title", "duration", "genre", "year", "director", "actors", "description", "cover_filename"]
+    definitions:
+      MovieInput:
+        type: object
+        properties:
+          title:
+            type: string
+            example: "Новый Фильм"
+          duration:
+            type: integer
+            example: 120
+          genre:
+            type: string
+            example: "Комедия"
+          year:
+            type: integer
+            example: 2025
+          director:
+            type: string
+            example: "Режиссер"
+          actors:
+            type: array
+            items:
+              type: string
+            example: ["Актёр 1", "Актёр 2"]
+          description:
+            type: string
+            example: "Описание нового фильма."
+          cover_filename:
+            type: string
+            example: "новый_фильм.png"
+        required:
+          - title
+          - duration
+          - genre
+          - year
+          - director
+          - actors
+          - description
+          - cover_filename
+      Movie:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 11
+          title:
+            type: string
+            example: "Новый Фильм"
+          duration:
+            type: integer
+            example: 120
+          genre:
+            type: string
+            example: "Комедия"
+          year:
+            type: integer
+            example: 2025
+          director:
+            type: string
+            example: "Режиссер"
+          actors:
+            type: array
+            items:
+              type: string
+            example: ["Актёр 1", "Актёр 2"]
+          description:
+            type: string
+            example: "Описание нового фильма."
+          cover_filename:
+            type: string
+            example: "новый_фильм.png"
+        required:
+          - id
+          - title
+          - duration
+          - genre
+          - year
+          - director
+          - actors
+          - description
+          - cover_filename
+    """
     new_movie = request.get_json()
     required_fields = ['title', 'duration', 'genre', 'year', 'director', 'actors', 'description', 'cover_filename']
     if not new_movie or not all(field in new_movie for field in required_fields):
@@ -161,9 +471,111 @@ def add_movie():
     movies.append(new_movie)
     return jsonify(new_movie), 201
 
+
 # Эндпоинт: Обновить фильм (API)
 @app.route('/api/movies/<int:movie_id>', methods=['PUT'])
 def update_movie(movie_id):
+    """
+    Обновить фильм
+    ---
+    tags:
+      - API
+    summary: Обновление информации о фильме
+    description: Обновляет данные фильма с указанным ID. В теле запроса передаются поля для обновления.
+    parameters:
+      - in: path
+        name: movie_id
+        schema:
+          type: integer
+          example: 1
+        required: true
+        description: Уникальный идентификатор фильма
+      - in: body
+        name: movie
+        required: true
+        description: Данные для обновления
+        schema:
+          type: object
+          properties:
+            title:
+              type: string
+            duration:
+              type: integer
+            genre:
+              type: string
+            year:
+              type: integer
+            director:
+              type: string
+            actors:
+              type: array
+              items:
+                type: string
+            description:
+              type: string
+            cover_filename:
+              type: string
+    responses:
+      200:
+        description: Фильм успешно обновлен
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/Movie'
+      404:
+        description: Фильм не найден
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Фильм не найден"
+    definitions:
+      Movie:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          title:
+            type: string
+            example: "Начало"
+          duration:
+            type: integer
+            example: 148
+          genre:
+            type: string
+            example: "Научная фантастика, Триллер"
+          year:
+            type: integer
+            example: 2010
+          director:
+            type: string
+            example: "Кристофер Нолан"
+          actors:
+            type: array
+            items:
+              type: string
+            example: ["Леонардо ДиКаприо", "Джозеф Гордон-Левитт"]
+          description:
+            type: string
+            example: "«Начало» — это захватывающий научно-фантастический триллер..."
+          cover_filename:
+            type: string
+            example: "Начало.png"
+        required:
+          - id
+          - title
+          - duration
+          - genre
+          - year
+          - director
+          - actors
+          - description
+          - cover_filename
+    """
     movie = next((m for m in movies if m['id'] == movie_id), None)
     if not movie:
         return jsonify({"error": "Фильм не найден"}), 404
@@ -171,12 +583,51 @@ def update_movie(movie_id):
     movie.update(data)
     return jsonify(movie)
 
+
 # Эндпоинт: Удалить фильм (API)
 @app.route('/api/movies/<int:movie_id>', methods=['DELETE'])
 def delete_movie(movie_id):
+    """
+    Удалить фильм
+    ---
+    tags:
+      - API
+    summary: Удаление фильма по ID
+    description: Удаляет фильм с указанным ID из списка.
+    parameters:
+      - in: path
+        name: movie_id
+        schema:
+          type: integer
+          example: 1
+        required: true
+        description: Уникальный идентификатор фильма
+    responses:
+      200:
+        description: Фильм успешно удален
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Фильм удален"
+      404:
+        description: Фильм не найден
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Фильм не найден"
+    """
     global movies
     movies = [m for m in movies if m['id'] != movie_id]
     return jsonify({"message": "Фильм удален"}), 200
+
 
 # Запуск приложения
 if __name__ == '__main__':
